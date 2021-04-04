@@ -4,31 +4,37 @@
 ########  Synthesis and Formality  ########
 ###########################################
 
-# design name
+##### Top design name
 set DESIGN_NAME = sample_com
 #set DESIGN_NAME = sample_seq
 #set DESIGN_NAME = sample_lib_conv
 
-# constant parameter
+
+
+##### tool settings
+### Logic Synthesis
+#set SYN_TOOL = dc_shell
+set SYN_TOOL = genus
+### Formal Verification (RTL vs Netlist)
+#set FM_TOOL = fm_shell
+#set FM_TOOL = conformal
+
+
+
+##### Log and Synthesis Result Directory
 set TCL_DIR	= "tcl"
 set LOG_DIR = "log"
 set REPORT_DIR = "report"
 set RESULT_DIR = "result"
-
-# tool settings
-#set SYN_TOOL = dc_shell
-set SYN_TOOL = genus
-
-#set FM_TOOL = fm_shell
-#set FM_TOOL = conformal
-
 mkdir -p ${LOG_DIR}
 mkdir -p ${RESULT_DIR}
 mkdir -p ${REPORT_DIR}
 mkdir -p ${RESULT_DIR}/${DESIGN_NAME}
-
 mkdir -p ${REPORT_DIR}/${DESIGN_NAME}
 
+
+
+##### Run synthesis and verification
 if ( $SYN_TOOL == dc_shell ) then
 	./lib2db.sh $DESIGN_NAME
 endif
