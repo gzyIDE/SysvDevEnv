@@ -30,8 +30,8 @@ endif
 
 
 ##### Gate Level Simulation
-set GATE = 1
-#set GATE = 0
+set GATE = 0
+#set GATE = 1
 if ( $GATE =~ 1 ) then
 	set DEFINE_LIST = ($DEFINE_LIST NETLIST)
 endif
