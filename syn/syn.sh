@@ -23,6 +23,7 @@ if ( $#argv <= 1 ) then
 else
 	set TOOL = $2
 endif
+setenv tool_name $TOOL
 
 
 

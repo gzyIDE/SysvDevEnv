@@ -18,6 +18,7 @@ endif
 
 ##### tool settings
 set TOOL = lc_shell
+setenv tool_name $TOOL
 
 
 

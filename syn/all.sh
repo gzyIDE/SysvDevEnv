@@ -5,8 +5,8 @@
 ###########################################
 
 ##### Top design name
-set DESIGN_NAME = sample_com
-#set DESIGN_NAME = sample_seq
+#set DESIGN_NAME = sample_com
+set DESIGN_NAME = sample_seq
 #set DESIGN_NAME = sample_lib_conv
 
 
@@ -17,7 +17,7 @@ set DESIGN_NAME = sample_com
 set SYN_TOOL = genus
 ### Formal Verification (RTL vs Netlist)
 #set FM_TOOL = fm_shell
-#set FM_TOOL = conformal
+set FM_TOOL = lec
 
 
 

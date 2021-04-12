@@ -39,7 +39,6 @@ if { $PROCESS == "ASAP7" } {
 
 	# name of libraries (except corner)
 	#    (In this example, only regular VT cells are used)
-	set TARGET_CELL_NAME [list]
 	set TARGET_CELL_NAME [list \
 		${CELLDIR}/asap7sc7p5t_SIMPLE_RVT \
 		${CELLDIR}/asap7sc7p5t_SEQ_RVT \
@@ -53,10 +52,40 @@ if { $PROCESS == "ASAP7" } {
 	#		https://github.com/google/skywater-pdk
 	#	url:
 	#		https://skywater-pdk.readthedocs.io/en/latest/
-	set CELLLIB ""
-	set CELLDIR ""
-	set CORNERS [list]
-	set TARGET_CELL_NAME [list]
+
+	# this example uses only high speed standard cells 
+	set CELLLIB "./skywater-pdk/libraries"
+	# Create .db files in ${CELLDIR} if necessary...
+	set CELLDIR "${CELLLIB}/sky130_fd_sc_hs/latest/timing"
+	set CORNERS [list \
+		ff_100C_1v95 \
+		ff_150C_1v95 \
+		ff_n40C_1v56 \
+		ff_n40C_1v76 \
+		ff_n40C_1v95 \
+		ff_n40C_1v95_ccsnoise \
+		ss_100C_1v60 \
+		ss_150C_1v60 \
+		ss_n40C_1v28 \
+		ss_n40C_1v44 \
+		ss_n40C_1v60 \
+		ss_n40C_1v60_ccsnoise \
+		tt_025C_1v20 \
+		tt_025C_1v35 \
+		tt_025C_1v44 \
+		tt_025C_1v50 \
+		tt_025C_1v62 \
+		tt_025C_1v68 \
+		tt_025C_1v80 \
+		tt_025C_1v80_ccsnoise \
+		tt_025C_1v89 \
+		tt_025C_2v10 \
+		tt_100C_1v80 \
+		tt_150C_1v80 \
+	]
+	set TARGET_CELL_NAME [list \
+		${CELLDIR}/sky130_fd_sc_hs_ \
+	]
 } else {
 	echo "Select Some Process for Synthesis"
 	exit
@@ -108,8 +137,12 @@ if { [info exist synopsys_program_name] } {
 
 	### search path setting
 	set_app_var search_path [concat $search_path ${DBDIR}]
+} else {
+	##### Cadence Tool chain (Genus, Conformal )
+}
 
-	if { $synopsys_program_name == "dc_shell" } {
+switch $env(tool_name) {
+	"dc_shell" {
 		### Design Compiler
 		# verification file setting
 		set_svf ${RESULTDIR}/${DESIGN}/${DESIGN}.mapped.svf
@@ -153,7 +186,9 @@ if { [info exist synopsys_program_name] } {
 			# if source contains systemverilog files, output systemverilog netlist wrapper
 			write -hierarchy -format svsim -output ${RESULTDIR}/${DESIGN}/${DESIGN}_svsim.sv
 		}
-	} elseif { $synopsys_program_name == "fm_shell" } {
+	}
+
+	"fm_shell" {
 		### Formality
 		# library for formal verification
 		# Setting Design Compiler Directory
@@ -185,7 +220,9 @@ if { [info exist synopsys_program_name] } {
 			analyze_points -failing > ${REPORTDIR}/${DESIGN}/fmv_failing_analysis.rpt
 			report_svf_operation [find_svf_operation -status rejected]
 		}
-	} elseif { $synopsys_program_name == "lc_shell" } { 
+	}
+
+	"lc_shell" {
 		foreach ip ${hard_ip} {
 			if { ![ file exists ${ip}.db ] } {
 				# typical corner
@@ -195,63 +232,108 @@ if { [info exist synopsys_program_name] } {
 			}
 		}
 	}
-} else {
-	##### Cadence Tool chain (GENUS)
-	# target design
-	set design ${DESIGN}
 
-	# path/library settings
-	set_db / .lib_search_path [concat . ${CELLDIR} ${LIBDIR}]
-	set_db / .library $target_library
+	"genus" {
+		##### Cadence Tool chain (GENUS)
+		# target design
+		set design ${DESIGN}
 
-	# read hdl
-	set_db / .hdl_search_path $search_path
-	if { [info exist FILE_LIST] } {
-		read_hdl ${FILE_LIST}
-	}
-	if { [info exist SV_FILE_LIST] } {
-		read_hdl -sv ${SV_FILE_LIST}
-		if { [info exist SV_COMPLEX_PORT]} {
-			set_db / .hdl_sv_module_wrapper true
+		# path/library settings
+		set_db / .lib_search_path [concat . ${CELLDIR} ${LIBDIR}]
+		set_db / .library $target_library
+
+		# read hdl
+		set_db / .hdl_search_path $search_path
+		if { [info exist FILE_LIST] } {
+			read_hdl ${FILE_LIST}
 		}
-	}
-	elaborate
-
-	# set top design
-	#set design ${DESIGN}
-	current_design ${DESIGN}
-
-	# dont touch constraints
-	if { [info exist DONT_TOUCH_CELL] } {
-		foreach cell ${DONT_TOUCH_CELL} {
-			set_dont_touch [get_cells -hierarchical $cell]
+		if { [info exist SV_FILE_LIST] } {
+			read_hdl -sv ${SV_FILE_LIST}
+			if { [info exist SV_COMPLEX_PORT]} {
+				set_db / .hdl_sv_module_wrapper true
+			}
 		}
-	}
-	#set_dont_touch ${DONT_TOUCH_CELLS}
+		elaborate
 
-	# synthesis option and compile
-	source -echo -verbose ${TCLDIR}/clk_const.tcl
-	check_design > ${REPORTDIR}/${DESIGN}/check_design.rpt
+		# set top design
+		#set design ${DESIGN}
+		current_design ${DESIGN}
 
-	# synthesis
-	syn_generic
-	syn_map
-	syn_opt
-
-	# output result
-	write_hdl -generic ${DESIGN} > ${RESULTDIR}/${DESIGN}/${DESIGN}.generic_gate.v
-	write_hdl -lec ${DESIGN} > ${RESULTDIR}/${DESIGN}/${DESIGN}.mapped.v
-	if { [info exist SV_FILE_LIST] } {
-		# if source contains systemverilog files, output systemverilog netlist wrapper
-		if { [info exist SV_COMPLEX_PORT] } {
-			write_sv_wrapper -wrapper_name ${DESIGN}_svsim \
-				-module ${DESIGN} > ${RESULTDIR}/${DESIGN}/${DESIGN}_svsim.sv
-			#write_sv_wrapper > ${RESULTDIR}/${DESIGN}/${DESIGN}_svsim.sv
+		# dont touch constraints
+		if { [info exist DONT_TOUCH_CELL] } {
+			foreach cell ${DONT_TOUCH_CELL} {
+				set_dont_touch [get_cells -hierarchical $cell]
+			}
 		}
+		#set_dont_touch ${DONT_TOUCH_CELLS}
+		
+		# synthesis option and compile
+		source -echo -verbose ${TCLDIR}/clk_const.tcl
+		check_design > ${REPORTDIR}/${DESIGN}/check_design.rpt
+
+		# synthesis
+		syn_generic
+		syn_map
+		syn_opt
+
+		# output result
+		write_hdl -generic ${DESIGN} > ${RESULTDIR}/${DESIGN}/${DESIGN}.generic_gate.v
+		write_hdl -lec ${DESIGN} > ${RESULTDIR}/${DESIGN}/${DESIGN}.mapped.v
+		if { [info exist SV_FILE_LIST] } {
+			# if source contains systemverilog files, 
+			#    and contains complex ports (array, union, interface, etc...)
+			#    conoutput systemverilog netlist wrapper
+			if { [info exist SV_COMPLEX_PORT] } {
+				write_sv_wrapper -wrapper_name ${DESIGN}_svsim \
+					-module ${DESIGN} > ${RESULTDIR}/${DESIGN}/${DESIGN}_svsim.sv
+			}
+		}
+
+		# report
+		report_area > ${REPORTDIR}/${DESIGN}/report_area.rpt
+		report_power > ${REPORTDIR}/${DESIGN}/report_power.rpt
+		report_timing > ${REPORTDIR}/${DESIGN}/report_timing.rpt
 	}
 
-	# report
-	report_area > ${REPORTDIR}/${DESIGN}/report_area.rpt
-	report_power > ${REPORTDIR}/${DESIGN}/report_power.rpt
-	report_timing > ${REPORTDIR}/${DESIGN}/report_timing.rpt
+	"lec" {
+		# run on setup-mode
+		# search path setting
+		add_search_path ${search_path} -design
+		add_search_path [concat . ${CELLDIR} ${LIBDIR}] -library
+
+		# read library
+		read_library $target_library -liberty
+
+		# read original rtl files (golden)
+		if { [info exist FILE_LIST] } {
+			read_design $FILE_LIST -golden -verilog
+		}
+		if { [info exist SV_FILE_LIST] } {
+			read_design $SV_FILE_LIST -golden -systemverilog
+		}
+
+		# read synthesized netlists (revised)
+		read_design ${RESULTDIR}/${DESIGN}/${DESIGN}.mapped.v -revised -verilog
+
+		# set top module (only if necessary)
+		#set_root_module ${DESIGN}
+
+		# switch to lec-mode
+		set_system_mode lec
+
+		# key point mapping ( Automatically run on entring to LEC mode )
+		#map_key_points
+
+		# run comparioson between Golden and revised
+		add_compared_points -all
+		compare
+
+		# report compare result
+		report_compared_points > ${REPORTDIR}/${DESIGN}/lec_compared_points.rpt
+		report_compare_data > ${REPORTDIR}/${DESIGN}/lec_compare_data.rpt
+		report_statistics > ${REPORTDIR}/${DESIGN}/lec_statistics.rpt
+
+		# report current status
+		#report_environment
+	}
 }

@@ -1,7 +1,15 @@
 # parameter settings
+
+# For ASAP7
 #   time unit : ps (different by process technology)
 #	synthesis target : 2GHz
-set CLK_CYC			500
+#set CLK_CYC			500
+
+# For Skywater-130
+#   time unit : ns
+#	synthesis target : 1GHz
+set CLK_CYC			1
+
 set IN_DELAY_RATIO	0.1
 set OUT_DELAY_RATIO	0.1
 
