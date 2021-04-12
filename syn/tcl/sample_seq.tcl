@@ -33,4 +33,5 @@ set RESET_SIG_NAME	reset_
 
 source -echo -verbose $TCLDIR/common.tcl
 
-quit
+
+exit

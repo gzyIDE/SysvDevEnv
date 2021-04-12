@@ -33,4 +33,4 @@ set SV_FILE_LIST	[list \
 
 source -echo -verbose $TCLDIR/common.tcl
 
-quit
+exit

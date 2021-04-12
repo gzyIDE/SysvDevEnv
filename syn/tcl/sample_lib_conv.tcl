@@ -39,4 +39,4 @@ set HARDIP [list \
 
 source -echo -verbose $TCLDIR/common.tcl
 
-quit
+exit
