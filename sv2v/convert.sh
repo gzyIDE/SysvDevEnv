@@ -55,12 +55,12 @@ foreach inc ( $INCDIR )
 end
 
 foreach file ($RTL_FILE)
-	set vfilename = $file:r.v
+	set vfilename = `basename $file:r.v`
 	#sv2v -w adjacent $DEFINES $INCLUDE $files
 	if ( -f $VDIR/$vfilename ) then
-		echo "$vfilename alreay exists. Conversion is skipped."
+		echo "$VDIR/$vfilename alreay exists. Conversion is skipped."
 	else
-		echo "Converting $file to $vfilename"
+		echo "Converting $file to $VDIR/$vfilename"
 		sv2v -w stdout $DEFINES $INCLUDE $file > $VDIR/$vfilename
 	endif
 end
