@@ -1,4 +1,4 @@
-#!/usr/bin/tcsh
+#!/bin/tcsh
 
 ###############################################################################
 # Invoke SystevemVerilog to Verilog converter
@@ -57,5 +57,10 @@ end
 foreach file ($RTL_FILE)
 	set vfilename = $file:r.v
 	#sv2v -w adjacent $DEFINES $INCLUDE $files
-	sv2v -w stdout $DEFINES $INCLUDE $file > $VDIR/$vfilename
+	if ( -f $VDIR/$vfilename ) then
+		echo "$vfilename alreay exists. Conversion is skipped."
+	else
+		echo "Converting $file to $vfilename"
+		sv2v -w stdout $DEFINES $INCLUDE $file > $VDIR/$vfilename
+	endif
 end
