@@ -5,6 +5,9 @@ set TOPDIR = ".."
 set RTLDIR = "${TOPDIR}/rtl"
 set TESTDIR = "${TOPDIR}/test"
 set GATEDIR = "${TOPDIR}/syn/result"
+set SV2VDIR = "${TOPDIR}/sv2v"
+set SV2VRTLDIR = "${SV2VDIR}/rtl"
+set SV2VTESTDIR = "${SV2VDIR}/test"
 set INCDIR = ( \
 	${TOPDIR}/include \
 	${TESTDIR} \
@@ -17,6 +20,11 @@ set DEFINES = ()
 ##### Output Wave
 set Waves = 1
 set WaveOpt
+
+
+
+##### Simulation after Systemverilog to verilog (SV2V) Conversion
+set SV2V = 1
 
 
 
