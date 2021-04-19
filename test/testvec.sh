@@ -17,6 +17,12 @@ set DEFINES = ()
 
 
 
+##### load configs
+source sim_tool.sh
+source target.sh
+
+
+
 ##### Output Wave
 set Waves = 1
 set WaveOpt
@@ -24,7 +30,11 @@ set WaveOpt
 
 
 ##### Simulation after Systemverilog to verilog (SV2V) Conversion
-set SV2V = 1
+set SV2V = 0
+if ( $SIM_TOOL =~ "iverilog" ) then
+	# iverilog only supports verilog formats
+	set SV2V = 1
+endif
 
 
 
@@ -89,8 +99,6 @@ switch ($Process)
 endsw
 
 ###### Simulation Target Selection
-source target.sh
-
 if ( $# =~ 0 ) then
 	set TOP_MODULE = $DEFAULT_DESIGN
 else
@@ -102,8 +110,6 @@ source module.sh
 
 
 ##### Simulation Tool Setup
-source sim_tool.sh
-
 switch( $SIM_TOOL )
 	case "ncverilog" :
 		if ( $Waves =~ 1 ) then
@@ -234,6 +240,33 @@ switch( $SIM_TOOL )
 		foreach dir ( $INCDIR )
 			set INCLUDE = ( \
 				+incdir+$dir \
+				$INCLUDE \
+			)
+		end
+	breaksw
+
+	case "iverilog" :
+		if ( $Waves =~ 1 ) then
+			set WaveOpt = (-D VCD)
+		endif
+
+		set SIM_OPT = ( \
+			$WaveOpt \
+			-o ${TOP_MODULE}.sim \
+		)
+
+		set SRC_EXT = ()
+
+		foreach def ( $DEFINE_LIST )
+			set DEFINES = ( \
+				-D $def \
+				$DEFINES \
+			)
+		end
+
+		foreach dir ( $INCDIR )
+			set INCLUDE = ( \
+				-I $dir \
 				$INCLUDE \
 			)
 		end
