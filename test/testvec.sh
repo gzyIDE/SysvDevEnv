@@ -14,6 +14,7 @@ set INCDIR = ( \
 )
 set INCLUDE = ()
 set DEFINES = ()
+set RTL_FILE = ()
 
 
 
@@ -57,8 +58,8 @@ endif
 
 
 ##### Process Setting
-set Process = "ASAP7"
-#set Process = "None"
+#set Process = "ASAP7"
+set Process = "None"
 
 switch ($Process)
 	case "ASAP7" :
@@ -80,11 +81,11 @@ switch ($Process)
 			${CELL_RTL_DIR}/asap7sc7p5t_AO_RVT \
 		)
 
-		set RTL_FILE = ()
+		set LIB_FILE = ()
 		foreach cell ( $CELL_NAME )
 			foreach corner ( $CORNERS )
-				set RTL_FILE = ( \
-					${RTL_FILE} \
+				set LIB_FILE = ( \
+					${LIB_FILE} \
 					${cell}_${corner}.v \
 				)
 			end
@@ -94,7 +95,7 @@ switch ($Process)
 	default :
 		# Simulation with simple gate model (Process = "None")
 		# Nothing to set
-		set RTL_FILE = ()
+		set LIB_FILE = ()
 	breaksw
 endsw
 
@@ -273,9 +274,10 @@ switch( $SIM_TOOL )
 	breaksw
 
 	case "xilinx_sim" :
-		if ( $Waves =~ 1 ) then
-			set WaveOpt = (-d VCD)
-		endif
+		#if ( $Waves =~ 1 ) then
+		#	set WaveOpt = (-d VCD)
+		#endif
+		# Output WDB instead
 
 		set SIM_OPT = ( \
 			$WaveOpt \
@@ -312,10 +314,17 @@ if ( ${SIM_TOOL} =~ "xilinx_sim" ) then
 		${INCLUDE} \
 		${DEFINES} \
 		${TEST_FILE} \
+		${LIB_FILE} \
 		${RTL_FILE}
 
-	xelab ${TOP_MODULE}_test
-	xsim --R ${TOP_MODULE}_test
+
+	if ( $Waves ) then
+		xelab --debug all ${TOP_MODULE}_test
+		xsim --tclbatch xwaves.tcl --wdb waves.wdb ${TOP_MODULE}_test
+	else
+		xelab ${TOP_MODULE}_test
+		xsim --R ${TOP_MODULE}_test
+	endif
 else
 	${SIM_TOOL} \
 		${SIM_OPT} \
@@ -323,5 +332,6 @@ else
 		${INCLUDE} \
 		${DEFINES} \
 		${TEST_FILE} \
+		${LIB_FILE} \
 		${RTL_FILE}
 endif
