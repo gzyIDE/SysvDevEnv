@@ -4,13 +4,18 @@
 set TOPDIR = ".."
 set RTLDIR = "${TOPDIR}/rtl"
 set TESTDIR = "${TOPDIR}/test"
+set TBDIR = "${TESTDIR}/tb"
+set TESTINCDIR = "${TESTDIR}/include"
 set GATEDIR = "${TOPDIR}/syn/result"
 set SV2VDIR = "${TOPDIR}/sv2v"
 set SV2VRTLDIR = "${SV2VDIR}/rtl"
 set SV2VTESTDIR = "${SV2VDIR}/test"
 set INCDIR = ( \
 	${TOPDIR}/include \
-	${TESTDIR} \
+	${TESTINCDIR} \
+)
+set DEFINE_LIST = ( \
+	SIMULATION \
 )
 set INCLUDE = ()
 set DEFINES = ()
@@ -41,9 +46,7 @@ endif
 
 ##### Defines
 if ( $Waves =~ 1 ) then
-	set DEFINE_LIST = ( WAVE_DUMP )
-else 
-	set DEFINE_LIST = ()
+	set DEFINE_LIST = ( $DEFINE_LIST WAVE_DUMP )
 endif
 
 
@@ -283,6 +286,9 @@ switch( $SIM_TOOL )
 			$WaveOpt \
 		)
 
+		set SRC_EXT = ( \
+		)
+
 		foreach def ( $DEFINE_LIST )
 			set DEFINES = ( \
 				--define $def \
@@ -308,23 +314,86 @@ endsw
 
 ##### run simulation
 if ( ${SIM_TOOL} =~ "xilinx_sim" ) then
-	xvlog \
-		--sv \
-		${SIM_OPT} \
-		${INCLUDE} \
-		${DEFINES} \
-		${TEST_FILE} \
-		${LIB_FILE} \
-		${RTL_FILE}
+	mkdir -p xilinx/${TOP_MODULE}
+	set FILE_TCL = "./xilinx/${TOP_MODULE}/files.tcl"
+	set DEFINE_TCL = "./xilinx/${TOP_MODULE}/defines.tcl"
+
+	### set design target
+	echo "set TOP ${TOP_MODULE}" > "./xilinx/top.tcl"
+
+	### generate tcl file to designate source flies
+	# Waveform configuration
+	echo "set WAVEFORM $Waves" > ${FILE_TCL}
+
+	# Add Design RTL Files
+	echo "set DESIGN_FILES [list \\" >> ${FILE_TCL}
+	foreach files ( $RTL_FILE )
+		echo "$files \\" >> ${FILE_TCL}
+	end
+	echo "]" >> ${FILE_TCL}
+
+	# Add Test Files
+	echo "set TEST_FILES [list \\" >> ${FILE_TCL}
+	foreach files ( $TEST_FILE )
+		echo "$files \\" >> ${FILE_TCL}
+	end
+	echo "]" >> ${FILE_TCL}
+
+	# Add include directories
+	echo "set INCLUDE_DIRS [list \\" >> ${FILE_TCL}
+	foreach dirs ( $INCDIR )
+		echo "$dirs \\" >> ${FILE_TCL}
+	end
+	echo "]" >> ${FILE_TCL}
+
+	# Add define lists
+	echo "set DEFINE_LISTS [list \\" >> ${DEFINE_TCL}
+	foreach dirs ( $DEFINE_LIST )
+		echo "$dirs \\" >> ${DEFINE_TCL}
+	end
+	echo "]" >> ${DEFINE_TCL}
+
+	# create vivado projects for debug
+	vivado -mode batch -source ./xilinx/prj.tcl
 
 
-	if ( $Waves ) then
-		xelab --debug all ${TOP_MODULE}_test
-		xsim --tclbatch xwaves.tcl --wdb waves.wdb ${TOP_MODULE}_test
-	else
-		xelab ${TOP_MODULE}_test
-		xsim --R ${TOP_MODULE}_test
-	endif
+
+	#### Compile and simulation
+	#xvlog \
+	#	--sv \
+	#	${SIM_OPT} \
+	#	${INCLUDE} \
+	#	${DEFINES} \
+	#	${TEST_FILE} \
+	#	${LIB_FILE} \
+	#	${RTL_FILE}
+
+	#if ( $? =~ 1 ) then
+	#	echo "Failed at compilation!"
+	#	exit
+	#endif
+
+
+
+	#if ( $Waves ) then
+	#	set xelab_option = "--debug all"
+	#	set xsim_option = "--tclbatch ./xilinx/xwaves.tcl --wdb waves.wdb"
+	#else
+	#	set xelab_option = ""
+	#	set xsim_option = "--R"
+	#endif
+
+	#xelab ${xelab_option} ${TOP_MODULE}_test
+	#if ( $? =~ 1 ) then
+	#	echo "Failed at elaboration!"
+	#	exit
+	#endif
+
+	#xsim ${xsim_option} ${TOP_MODULE}_test
+	#if ( $? =~ 1 ) then
+	#	echo "Simulation failed!"
+	#	exit
+	#endif
 else
 	${SIM_TOOL} \
 		${SIM_OPT} \

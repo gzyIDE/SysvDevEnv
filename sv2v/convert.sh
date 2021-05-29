@@ -9,6 +9,8 @@
 set TOPDIR = ".."
 set SVDIR = "${TOPDIR}/rtl"
 set SVTESTDIR = "${TOPDIR}/test"
+set SVTBDIR = "${SVTESTDIR}/tb"
+set SVTESTINCDIR = "${SVTESTDIR}/include"
 set SV2VDIR = "${TOPDIR}/sv2v"
 set VDIR = "${SV2VDIR}/rtl"
 set VTESTDIR = "${SV2VDIR}/test"
@@ -23,7 +25,7 @@ mkdir -p ${VTESTDIR}
 ##### Include Files
 set INCDIR = ( \
 	${TOPDIR}/include \
-	${SVTESTDIR} \
+	${SVTESTINCDIR} \
 )
 
 
@@ -68,8 +70,8 @@ set testname = ${TOP_MODULE}_test
 if ( -f $VTESTDIR/${testname}.v ) then
 	echo "$VTESTDIR/${testname}.v alreay exists. Conversion is skipped."
 else
-		echo "Converting $SVTESTDIR/${testname}.sv to $VTESTDIR/${testname}.v"
-	sv2v -w stdout $DEFINES $INCLUDE $SVTESTDIR/${testname}.sv > $VTESTDIR/${testname}.v
+		echo "Converting $SVTBDIR/${testname}.sv to $VTESTDIR/${testname}.v"
+	sv2v -w stdout $DEFINES $INCLUDE $SVTBDIR/${testname}.sv > $VTESTDIR/${testname}.v
 endif
 
 # DUT Conversion

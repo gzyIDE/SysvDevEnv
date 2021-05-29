@@ -56,6 +56,8 @@ module sample_com_test;
 			in = in + 1;
 			#(STEP);
 		end
+
+		$finish;
 	end
 
 	`include "waves.vh"

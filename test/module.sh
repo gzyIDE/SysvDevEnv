@@ -2,7 +2,7 @@
 
 switch ( $TOP_MODULE )
 	case "sample_com" :
-		set TEST_FILE = "${TOP_MODULE}_test.sv"
+		set TEST_FILE = ${TBDIR}/${TOP_MODULE}_test.sv
 		if ( $GATE =~ 1 ) then
 			set RTL_FILE = ( \
 				$RTL_FILE \
@@ -16,7 +16,7 @@ switch ( $TOP_MODULE )
 	breaksw
 
 	case "sample_seq" :
-		set TEST_FILE = "${TOP_MODULE}_test.sv"
+		set TEST_FILE = ${TBDIR}/${TOP_MODULE}_test.sv
 		if ( $GATE =~ 1 ) then
 			set RTL_FILE = ( \
 				$RTL_FILE \
@@ -31,7 +31,7 @@ switch ( $TOP_MODULE )
 	breaksw
 
 	case "sample_lib_conv" :
-		set TEST_FILE = "${TOP_MODULE}_test.sv"
+		set TEST_FILE = ${TBDIR}/${TOP_MODULE}_test.sv
 		if ( $GATE =~ 1 ) then
 			set RTL_FILE = ( \
 				$RTL_FILE \
@@ -58,7 +58,7 @@ if ( $SV2V =~ 1 ) then
 	popd
 
 	# Test vector
-	set TEST_FILE = "$SV2VTESTDIR/${TOP_MODULE}_test.v"
+	set TEST_FILE = "${SV2VTESTDIR}/${TOP_MODULE}_test.v"
 
 	# DUT
 	set new_path = ()
@@ -66,7 +66,7 @@ if ( $SV2V =~ 1 ) then
 		set vfilename = `basename $file:r.v`
 		set new_path = ( \
 			$new_path \
-			$SV2VRTLDIR/$vfilename \
+			${SV2VRTLDIR}/${vfilename} \
 		)
 	end
 	set RTL_FILE = ( $new_path )
