@@ -1,5 +1,6 @@
-# EasySysvEnv
-Easy to use RTL development environment for SystemVerilog
+# SysvDevEnv
+Easy to use RTL development environment for SystemVerilog.
+Vivadoを中心に、各種商用EDA (Synopsys, Cadence)での開発も考慮に入れた、System Verilogの開発環境です。
 
 # Directory
 For more details, see comments of each files
@@ -28,12 +29,23 @@ For more details, see comments of each files
       - waves.vh :<br>
   		Wave dump options for RTL/Netlist Simulations<br>
   		Include this file inside test vectors
+  - For more details, see README.md in [test](test) directory
+
+* sv2v
+  - Based on [sv2v]
+  - If you want to test your design with [iverilog] or synthesize one with [Yosys]
+
+[sv2v]: https://github.com/zachjs/sv2v
+[iverilog]: http://iverilog.icarus.com/
+[Yosys]: http://www.clifford.at/yosys/
 
 * syn
   - Directory for logic synthesis scripts for ASIC
+  - For more details, see README.md in [syn](syn) directory
 
-* fpga
+* fpga (Coming soon...)
   - Directory for logic synthesis and P&R scripts for FPGA
+  - For more details, see README.md in [fpga](fpga) directory
 
 
 
