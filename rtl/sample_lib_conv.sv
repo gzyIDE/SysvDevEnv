@@ -27,8 +27,6 @@ module sample_lib_conv (
 	output reg			out
 );
 
-	reg					out_reg;
-
 	always_ff @( posedge clk ) begin
 		out <= in1 && in2;
 	end
