@@ -1,5 +1,5 @@
 # SysvDevEnv
-Easy to use RTL development environment for SystemVerilog.
+Easy to use RTL development environment for SystemVerilog.  
 Vivadoを中心に、各種商用EDA (Synopsys, Cadence)での開発も考慮に入れた、System Verilogの開発環境です。
 
 # Directory
@@ -47,6 +47,6 @@ For more details, see comments of each files
   - Directory for logic synthesis and P&R scripts for FPGA
   - For more details, see README.md in [fpga](fpga) directory
 
-
-
-# Compiling sample scripts
+* vim
+  - Enviroment for syntax checking using vim syntastic plug-in
+  - See [vim/README.md](vim/README.md) for more information.
