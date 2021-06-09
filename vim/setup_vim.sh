@@ -13,8 +13,12 @@ set src_option = src_opt.vim
 set src_template = src_template.vim
 
 ### configuration options
+#	include : include file configuration (inc.vim)
+#	source  : source file configuration (src.vim)
+#	design  : configuration for each design (${module_name}.vim)
 set setup_include = 1
 set setup_source = 1
+set setup_design = 1
 
 ### directories to be skipped
 set skip_word = (\
@@ -25,10 +29,12 @@ set skip_word = (\
 )
 
 ### verilog source file extension (default v, sv)
+#	extention without "."
 set verilog_src_ext = (\
 )
 
 ### verilog header file extension (default vh, svh)
+#	extention without "."
 set verilog_header_ext = ( \
 )
 
@@ -62,16 +68,18 @@ end
 
 ### set find options for source file search
 set find_base = "find . "
-set find_src = "$find_base"'-type f -name "*.v" -or -name "*.sv"'"$find_skip"
+set find_src = "$find_base"'-type f -name "*.v" -or -name "*.sv"'
 foreach ext ($verilog_src_ext)
-	set find_src = "$find_src -or -name "'"*.'"$ext"'"'
+	set find_src = "$find_src -or -name "'"*.'"$ext"'" '
 end
+set find_src = "${find_src}${find_skip}"
 
 ### set find options for header search
-set find_header = "$find_base"'-type f -name "*.vh" -or -name "*.svh"'"$find_skip"
-foreach ext ($verilog_src_ext)
-	set find_src = "$find_src -or -name "'".'"$ext"'"'
+set find_header = "$find_base"'-type f -name "*.vh" -or -name "*.svh"'
+foreach ext ($verilog_header_ext)
+	set find_header = "$find_header -or -name "'"*.'"$ext"'" '
 end
+set find_header = "${find_header}${find_skip}"
 
 
 
@@ -79,7 +87,7 @@ end
 echo "Creating include directory list..."
 # search for header files
 set inc_list = ()
-echo "let g:incdir = ''" > ${vimdir}/${include_setup}
+echo "let g:incdir = ''" >! ${vimdir}/${include_setup}
 set inc_prefix = "let g:incdir = g:incdir . ' +incdir+"
 foreach incdir (`eval "$find_header" | xargs dirname | sort | uniq`)
 	set inc_list = ($inc_list "${top}/${incdir}")
@@ -92,7 +100,7 @@ cat ${vimdir}/${include_option} >> ${vimdir}/${include_setup}
 ##### create source directory list
 echo "Creating source directory list..."
 set src_list = ()
-echo "let g:srcdir = ''" > ${vimdir}/${src_setup}
+echo "let g:srcdir = ''" >! ${vimdir}/${src_setup}
 set src_prefix = "let g:srcdir = g:srcdir . ' -y "
 foreach srcdir (`eval "$find_src" | xargs dirname | sort | uniq`)
 	set src_list = ($src_list $srcdir)
@@ -122,16 +130,18 @@ end
 
 
 ##### create setup file for each source files
-echo "Copying template options for each source files"
-foreach srcfile (`eval "$find_src"`)
-	set filename = `basename -s .sv $srcfile`
-	set filename = `basename -s .v $filename`
-	foreach ext ($verilog_src_ext)
-		set filename = `basename -s $.ext $filename`
+if ( $setup_design =~ 1 ) then
+	echo "Copying template options for each source files"
+	foreach srcfile (`eval "$find_src"`)
+		set filename = `basename -s .sv $srcfile`
+		set filename = `basename -s .v $filename`
+		foreach ext ($verilog_src_ext)
+			set filename = `basename -s $.ext $filename`
+		end
+		set filepath = `dirname $srcfile`
+		set setpath = ${top}/${filepath}/${vim_setup_dir}
+		if ( ! -f ${setpath}/${filename}.vim ) then
+			cp -f ${vimdir}/${src_template} ${setpath}/${filename}.vim
+		endif
 	end
-	set filepath = `dirname $srcfile`
-	set setpath = ${top}/${filepath}/${vim_setup_dir}
-	if ( ! -f ${setpath}/${filename}.vim ) then
-		cp -f ${vimdir}/${src_template} ${setpath}/${filename}.vim
-	endif
-end
+endif
