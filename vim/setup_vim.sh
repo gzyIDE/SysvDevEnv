@@ -19,6 +19,7 @@ set src_template = src_template.vim
 set setup_include = 1
 set setup_source = 1
 set setup_design = 1
+set allow_setup_design_overwrite = 0
 
 ### directories to be skipped
 set skip_word = (\
@@ -41,107 +42,122 @@ set verilog_header_ext = ( \
 
 
 ##### run directory checking
-# it must be ${top directory}/vim (= Where this script locates)
-#set pwd = `pwd`
-#set current_dir = `basename $pwd`
-#if ( $current_dir != "vim" ) then
-#	echo "run setup_vim.sh in vim directory"
-#	exit 1
-#endif
-## cd to top directory
-#cd ..
-#set top = `pwd`
-#set vimdir = ${top}/vim
-set top = `git rev-parse --show-toplevel`
-cd $top
-set vimdir = ${top}/vim
-echo $vimdir
+set top = `git rev-parse --show-toplevel >& /dev/null`
+if ( $top =~ "" ) then
+	# Not in git repository
+	#	executed in ${top directory}/vim (= Where this script locates)
+	set current_dir = `pwd`
+	set current_dir = `basename $current_dir`
+	if ( $current_dir != "vim" ) then
+		echo "run setup_vim.sh in vim directory"
+		exit 1
+	endif
+	cd ..
+	set top = `pwd`
+	set vimdir = ${top}/vim
+else
+	# In git repository
+	cd $top
+	set vimdir = ${top}/vim
+endif
 
 
 
 ##### find command setup
 ### set find options for skipped list
-set find_skip = ""
+set grep_skip = ""
 foreach skip ($skip_word)
-	set find_skip = "$find_skip -not -path "'"*'"$skip"'*" '
+	#set find_skip = "$find_skip -not -path "'"*'"$skip"'*" '
+	#set find_skip = "$find_skip -name "'"*'"$skip"'*" -prune '
+	set grep_skip = "$grep_skip| grep -v $skip "
 end
+
+
 
 ### set find options for source file search
 set find_base = "find . "
-set find_src = "$find_base"'-type f -name "*.v" -or -name "*.sv"'
+#set find_src = "${find_base}${find_skip} -or "'-type f -name "*.v" -or -name "*.sv"'
+set find_src = "${find_base} "'-type f -name "*.v" -or -name "*.sv"'
 foreach ext ($verilog_src_ext)
 	set find_src = "$find_src -or -name "'"*.'"$ext"'" '
 end
-set find_src = "${find_src}${find_skip}"
+
+
 
 ### set find options for header search
-set find_header = "$find_base"'-type f -name "*.vh" -or -name "*.svh"'
+#set find_header = "${find_base}${find_skip} -or "'-type f -name "*.vh" -or -name "*.svh"'
+set find_header = "${find_base} "'-type f -name "*.vh" -or -name "*.svh"'
 foreach ext ($verilog_header_ext)
 	set find_header = "$find_header -or -name "'"*.'"$ext"'" '
 end
-set find_header = "${find_header}${find_skip}"
 
 
 
-##### create include file list
-echo "Creating include directory list..."
-# search for header files
-set inc_list = ()
+### search for source and header files
+echo "Creating include file list"
+set inc_list = `eval "$find_header"`
+set inc_files = ()
+foreach inc_file ( $inc_list )
+	set inc_files = ($inc_files `eval "echo $inc_file${grep_skip}"`)
+end
+set inc_dirs = `echo $inc_files | xargs dirname | sort | uniq`
+echo "Include Directories"
+echo "    $inc_dirs"
+
+echo "Creating source file list"
+set src_list = `eval "$find_src"`
+set src_files = ()
+foreach src_file ( $src_list )
+	set src_files = ($src_files `eval "echo ${src_file}${grep_skip}"`)
+end
+set src_dirs = `echo $src_files | xargs dirname | sort | uniq`
+echo "Source Directories"
+echo "    $src_dirs"
+
+
+
+##### create include/source file setup script
+echo "Writing include directory setup scripts"
 echo "let g:incdir = ''" >! ${vimdir}/${include_setup}
 set inc_prefix = "let g:incdir = g:incdir . ' +incdir+"
-foreach incdir (`eval "$find_header" | xargs dirname | sort | uniq`)
-	set inc_list = ($inc_list "${top}/${incdir}")
-	echo "${inc_prefix}${top}/${incdir}'" >> ${vimdir}/${include_setup}
+foreach inc_dir ( $inc_dirs )
+	mkdir -p ${top}/${inc_dir}/${vim_setup_dir}
+	echo "${inc_prefix}${top}/${inc_dir}'" >> ${vimdir}/${include_setup}
 end
 cat ${vimdir}/${include_option} >> ${vimdir}/${include_setup}
 
-
-
-##### create source directory list
-echo "Creating source directory list..."
-set src_list = ()
+echo "Writing source directory setup scripts"
 echo "let g:srcdir = ''" >! ${vimdir}/${src_setup}
 set src_prefix = "let g:srcdir = g:srcdir . ' -y "
-foreach srcdir (`eval "$find_src" | xargs dirname | sort | uniq`)
-	set src_list = ($src_list $srcdir)
-	mkdir -p ${top}/${srcdir}/${vim_setup_dir}
-	echo "${src_prefix}${top}/${srcdir}'" >> ${vimdir}/${src_setup}
+foreach src_dir ( $src_dirs )
+	mkdir -p ${top}/${src_dir}/${vim_setup_dir}
+	echo "${src_prefix}${top}/${src_dir}'" >> ${vimdir}/${src_setup}
 end
 cat ${vimdir}/${src_option} >> ${vimdir}/${src_setup}
 
 
 
-##### copy vim files
-echo "Creating include/source file options to each source directory"
-foreach srcdir (`eval "$find_src -exec dirname {} \;" | sort | uniq`)
-	if ( $setup_include =~ 1 ) then
-		cp -f ${vimdir}/${include_setup} ${top}/${srcdir}/${vim_setup_dir}
-	else
-		rm -f ${top}/${srcdir}/${vim_setup_dir}/${include_setup}
-	endif
-
-	if ( $setup_source =~ 1 ) then
-		cp -f ${vimdir}/${src_setup} ${top}/${srcdir}/${vim_setup_dir}
-	else
-		rm -f ${top}/${srcdir}/${vim_setup_dir}/${src_setup}
-	endif
+###### distribute include/source setup files
+foreach dir_name ( $inc_dirs $src_dirs )
+	cp -f ${vimdir}/${include_setup} ${dir_name}/${vim_setup_dir}/${include_setup}
+	cp -f ${vimdir}/${src_setup} ${dir_name}/${vim_setup_dir}/${src_setup}
 end
 
 
 
-##### create setup file for each source files
+##### create setup file for independent source files
 if ( $setup_design =~ 1 ) then
-	echo "Copying template options for each source files"
-	foreach srcfile (`eval "$find_src"`)
-		set filename = `basename -s .sv $srcfile`
-		set filename = `basename -s .v $filename`
+	foreach src_file ( $src_files )
+		set file_name = `basename -s .sv $src_file`
+		set file_name = `basename -s .v $file_name`
 		foreach ext ($verilog_src_ext)
-			set filename = `basename -s $.ext $filename`
+			set file_name = `basename -s $.ext $file_name`
 		end
-		set filepath = `dirname $srcfile`
+		set filepath = `dirname $src_file`
 		set setpath = ${top}/${filepath}/${vim_setup_dir}
-		if ( ! -f ${setpath}/${filename}.vim ) then
-			cp -f ${vimdir}/${src_template} ${setpath}/${filename}.vim
+		set vim_file = ${setpath}/${file_name}.vim
+		if ( ! -f $vim_file || $allow_setup_design_overwrite =~ 1 ) then
+			cp -f ${vimdir}/${src_template} ${vim_file}
 		endif
 	end
 endif
