@@ -1,6 +1,7 @@
 # SysvDevEnv
 Easy to use RTL development environment for SystemVerilog.  
-Vivadoを中心に、各種商用EDA (Synopsys, Cadence)での開発も考慮に入れた、System Verilogの開発環境です。
+Vivadoを中心に、各種商用EDA (Synopsys, Cadence)での開発も考慮に入れた、System Verilogの開発環境です。  
+ついでにvimでの開発も考慮し、SystemVerilogの文法チェック環境も用意してみました。
 
 # Directory
 For more details, see comments of each files
@@ -23,23 +24,24 @@ For more details, see comments of each files
   		Select Logic Simulators in this file
   	  - clean.sh :<br>
   		This scripts eliminates logs and binaries created by simulators
-    - Verilog Headers
-      - sim.vh : <br>
-  		Some utilities for simulators
-      - waves.vh :<br>
-  		Wave dump options for RTL/Netlist Simulations<br>
-  		Include this file inside test vectors
-  - For more details, see README.md in [test](test) directory
+    - directory
+	  - tb
+	    Testbench written in SystemVerilog
+      - include
+	    Include files for test
+	  - xilinx
+	    Simulation and debug environment for vivado
+  - For more details, see README.md in [test/README.md](test/README.md) directory
 
 * sv2v
-  - Based on [sv2v]
-  - If you want to test your design with [iverilog] or synthesize one with [Yosys]
+  - Converts SystemVerilog into Verilog using [sv2v]
+  - If you want to test your designs with [iverilog] or synthesize them with [Yosys], this might be helpful!
 
 [sv2v]: https://github.com/zachjs/sv2v
 [iverilog]: http://iverilog.icarus.com/
 [Yosys]: http://www.clifford.at/yosys/
 
-* syn
+* syn (Coming soon...)
   - Directory for logic synthesis scripts for ASIC
   - For more details, see README.md in [syn](syn) directory
 

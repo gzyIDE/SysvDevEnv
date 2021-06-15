@@ -13,7 +13,7 @@ source target.sh
 
 ##### Output Wave
 set Waves = 1
-set WaveOpt
+set WaveOpt = ""
 
 
 

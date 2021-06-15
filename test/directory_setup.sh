@@ -14,6 +14,7 @@ set INCDIR = ( \
 	${TOPDIR}/include \
 	${TESTINCDIR} \
 )
+
 set DEFINE_LIST = ( \
 	SIMULATION \
 )
