@@ -1,7 +1,7 @@
 #!/bin/tcsh
 
 # Files and Directories Settings
-set TOPDIR = ".."
+set TOPDIR = `pwd`"/.."
 set RTLDIR = "${TOPDIR}/rtl"
 set TESTDIR = "${TOPDIR}/test"
 set TBDIR = "${TESTDIR}/tb"
