@@ -301,11 +301,11 @@ if ( ${SIM_TOOL} =~ "xilinx_sim" ) then
 	set DEFINE_TCL = "./xilinx/${TOP_MODULE}/defines.tcl"
 
 	### set design target
-	echo "set TOP ${TOP_MODULE}" > "./xilinx/top.tcl"
+	echo "set TOP ${TOP_MODULE}" >! "./xilinx/top.tcl"
 
 	### generate tcl file to designate source flies
 	# Waveform configuration
-	echo "set WAVEFORM $Waves" > ${FILE_TCL}
+	echo "set WAVEFORM $Waves" >! ${FILE_TCL}
 
 	# Add Design RTL Files
 	echo "set DESIGN_FILES [list \\" >> ${FILE_TCL}
@@ -329,7 +329,7 @@ if ( ${SIM_TOOL} =~ "xilinx_sim" ) then
 	echo "]" >> ${FILE_TCL}
 
 	# Add define lists
-	echo "set DEFINE_LISTS [list \\" >> ${DEFINE_TCL}
+	echo "set DEFINE_LISTS [list \\" >! ${DEFINE_TCL}
 	foreach dirs ( $DEFINE_LIST )
 		echo "$dirs \\" >> ${DEFINE_TCL}
 	end
