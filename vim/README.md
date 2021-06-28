@@ -1,4 +1,4 @@
-#SystemVerilog vim Environment
+# SystemVerilog vim Environment
 ## File Descriptions
 
 ## vim plug-in manager
@@ -12,7 +12,7 @@ In order to add systemverilog filetype to syntastic, see the following guide.
 
 [syntastic]: https://github.com/vim-syntastic/syntastic
 
-###Add systemverilog checker to syntastic
+### Add systemverilog checker to syntastic
 1. Copy "systemverilog" directory to syntastic/syntax_checkers under your vim plug-in installation directory
 2. Add following member to "s:\_DEFAULT_CHECKERS" in syntastic/plugin/syntastic/registry.vim
 ```
