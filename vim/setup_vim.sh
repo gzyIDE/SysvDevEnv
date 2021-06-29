@@ -42,7 +42,7 @@ set verilog_header_ext = ( \
 
 
 ##### run directory checking
-set top = `git rev-parse --show-toplevel >& /dev/null`
+set top = `git rev-parse --show-toplevel`
 if ( $top =~ "" ) then
 	# Not in git repository
 	#	executed in ${top directory}/vim (= Where this script locates)
