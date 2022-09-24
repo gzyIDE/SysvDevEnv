@@ -6,7 +6,9 @@ source ${tcldir}/${TOP}/defines.tcl
 set TEST_MODULE ${TOP}_test
 
 # Configure project for simulations
-create_project -force ${TOP} ./xilinx/${TOP}
+if {[open_project -quiet ./xilinx/${TOP}/${TOP}.xpr] == {}} {
+	create_project -force ${TOP} ./xilinx/${TOP}
+}
 if {[string equal [get_filesets -quiet sources_1] ""]} {
     create_fileset -srcset sources_1
 }
@@ -24,6 +26,8 @@ set_property top ${TEST_MODULE} [get_filesets -quiet sim_1]
 set_property verilog_define ${DEFINE_LISTS} [get_filesets sim_1]
 
 # set simulation configuration
+set_property -name {xsim.simulate.runtime} -value {1000us} -objects [get_filesets sim_1]
+#set_property -name {xsim.elaborate.mt_level} -value {8} -objects [get_filesets sim_1]
 if { $WAVEFORM == 1 } {
 	set_property -name {xsim.elaborate.debug_level} -value {all} -objects [get_filesets sim_1]
 	set_property -name xelab.more_options -value {-debug all} -objects [get_filesets sim_1]
@@ -34,3 +38,5 @@ if { $WAVEFORM == 1 } {
 
 # simulation
 launch_simulation
+
+close_project
