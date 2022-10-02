@@ -33,12 +33,13 @@ For more details, see comments of each files
 	    Simulation and debug environment for vivado
   - For more details, see README.md in [test/README.md](test/README.md) directory
 
+* syn
+  - Synthesis script for yosys and Vivado
+  - If you would like to use systemverilog, [Yosys-systemverilog] instead of [Yosys] is recommended
+
 * sv2v
   - Converts SystemVerilog into Verilog using [sv2v]
   - If you want to test your designs with [iverilog] or synthesize them with [Yosys], this might be helpful!
-
-* yosys-systemverilog
-  - yosys plugin for full systemverilog support
 
 [sv2v]: https://github.com/zachjs/sv2v
 [iverilog]: http://iverilog.icarus.com/
