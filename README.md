@@ -1,6 +1,6 @@
 # SysvDevEnv
 Easy to use RTL development environment for SystemVerilog.  
-Vivadoを中心に、各種商用EDA (Synopsys, Cadence)での開発も考慮に入れた、System Verilogの開発環境です。  
+Vivadoやyosys, iverilogを用いたSystem Verilogの開発環境です。  
 ついでにvimでの開発も考慮し、SystemVerilogの文法チェック環境も用意してみました。
 
 # Directory
@@ -37,9 +37,13 @@ For more details, see comments of each files
   - Converts SystemVerilog into Verilog using [sv2v]
   - If you want to test your designs with [iverilog] or synthesize them with [Yosys], this might be helpful!
 
+* yosys-systemverilog
+  - yosys plugin for full systemverilog support
+
 [sv2v]: https://github.com/zachjs/sv2v
 [iverilog]: http://iverilog.icarus.com/
 [Yosys]: http://www.clifford.at/yosys/
+[Yosys-systemverilog]: https://github.com/antmicro/yosys-systemverilog
 
 * syn (Coming soon...)
   - Directory for logic synthesis scripts for ASIC

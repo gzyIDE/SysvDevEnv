@@ -16,3 +16,4 @@ xmverilog.history
 
 # ignore cad library
 *ASAP7_PDKandLIB_v1p6
+*ref.lib
