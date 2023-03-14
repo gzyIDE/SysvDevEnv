@@ -139,8 +139,8 @@ cat ${vimdir}/${src_option} >> ${vimdir}/${src_setup}
 
 ###### distribute include/source setup files
 foreach dir_name ( $inc_dirs $src_dirs )
-	cp -f ${vimdir}/${include_setup} ${dir_name}/${vim_setup_dir}/${include_setup}
-	cp -f ${vimdir}/${src_setup} ${dir_name}/${vim_setup_dir}/${src_setup}
+	\cp -f ${vimdir}/${include_setup} ${dir_name}/${vim_setup_dir}/${include_setup}
+	\cp -f ${vimdir}/${src_setup} ${dir_name}/${vim_setup_dir}/${src_setup}
 end
 
 
