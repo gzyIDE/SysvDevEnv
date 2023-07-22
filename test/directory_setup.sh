@@ -5,6 +5,7 @@ set TOPDIR = `pwd`"/.."
 set RTLDIR = "${TOPDIR}/rtl"
 set TESTDIR = "${TOPDIR}/test"
 set TBDIR = "${TESTDIR}/tb"
+set DPIDIR = "${TESTDIR}/dpi"
 set TESTINCDIR = "${TESTDIR}/include"
 set GATEDIR = "${TOPDIR}/syn/result"
 set SV2VDIR = "${TOPDIR}/sv2v"
@@ -21,3 +22,6 @@ set DEFINE_LIST = ( \
 set INCLUDE = ()
 set DEFINES = ()
 set RTL_FILE = ()
+set DPI_LIB = ( \
+  ${DPIDIR}/sample/target/debug/libsample.so \
+)

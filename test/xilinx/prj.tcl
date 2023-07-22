@@ -1,8 +1,10 @@
 # Initialize design configuration
-set tcldir [exec pwd]/xilinx
+set curdir [exec pwd]
+set tcldir ${curdir}/xilinx
 source ${tcldir}/top.tcl
 source ${tcldir}/${TOP}/files.tcl
 source ${tcldir}/${TOP}/defines.tcl
+source ${tcldir}/${TOP}/dpi.tcl
 set TEST_MODULE ${TOP}_test
 
 # Configure project for simulations
@@ -30,8 +32,14 @@ set_property -name {xsim.simulate.runtime} -value {1000us} -objects [get_fileset
 #set_property -name {xsim.elaborate.mt_level} -value {8} -objects [get_filesets sim_1]
 if { $WAVEFORM == 1 } {
 	set_property -name {xsim.elaborate.debug_level} -value {all} -objects [get_filesets sim_1]
-	set_property -name xelab.more_options -value {-debug all} -objects [get_filesets sim_1]
 	set_property -name {xsim.simulate.log_all_signals} -value {true} -objects [get_filesets sim_1]
+
+  set elabopt {--debug all}
+  set elabopt {--sv_root "/"}
+  foreach lib ${DPI_LISTS} {
+    lappend elabopt "--sv_lib ${lib}"
+  }
+	set_property -name xelab.more_options -value [concat {*}${elabopt}] -objects [get_filesets sim_1]
 } else {
 	set_property -name {xsim.elaborate.debug_level} -value {none} -objects [get_filesets sim_1]
 }

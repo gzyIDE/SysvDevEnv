@@ -1,5 +1,11 @@
 #!/bin/tcsh
 
+# rust sample library setup
+pushd ./dpi/sample
+cargo build
+popd
+
+
 ##### File and Directory Settings #####
 source directory_setup.sh
 
@@ -299,6 +305,7 @@ if ( ${SIM_TOOL} =~ "xilinx_sim" ) then
 	mkdir -p xilinx/${TOP_MODULE}
 	set FILE_TCL = "./xilinx/${TOP_MODULE}/files.tcl"
 	set DEFINE_TCL = "./xilinx/${TOP_MODULE}/defines.tcl"
+  set DPI_TCL = "./xilinx/${TOP_MODULE}/dpi.tcl"
 
 	### set design target
 	echo "set TOP ${TOP_MODULE}" >! "./xilinx/top.tcl"
@@ -334,6 +341,13 @@ if ( ${SIM_TOOL} =~ "xilinx_sim" ) then
 		echo "$dirs \\" >> ${DEFINE_TCL}
 	end
 	echo "]" >> ${DEFINE_TCL}
+
+  # DPI file lists
+  echo "set DPI_LISTS [list \\" >! ${DPI_TCL}
+  foreach libs ( $DPI_LIB )
+    echo "$libs \\" >> ${DPI_TCL}
+  end
+  echo "]" >> ${DPI_TCL}
 
 	# create vivado projects for debug
 	vivado -mode batch -source ./xilinx/prj.tcl -nojournal -log ${TOP_MODULE}.log
