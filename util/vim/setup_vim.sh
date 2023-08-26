@@ -1,5 +1,10 @@
 #!/bin/tcsh
 
+##### Parser tool
+#set lint_tool = verilator
+set lint_tool = slang
+
+
 ##### Parameters
 ### Vim setup directory
 #		It is created under each source file directory
@@ -7,10 +12,10 @@ set vim_setup_dir = .vim-verilog
 
 ### template files
 set include_setup = inc.vim
-set include_option = inc_opt.vim
+set include_option = ${lint_tool}/inc_opt.vim
 set src_setup = src.vim
-set src_option = src_opt.vim
-set src_template = src_template.vim
+set src_option = ${lint_tool}/src_opt.vim
+set src_template = ${lint_tool}/src_template.vim
 
 ### configuration options
 #	include : include file configuration (inc.vim)
@@ -54,11 +59,11 @@ if ( $top =~ "" ) then
 	endif
 	cd ..
 	set top = `pwd`
-	set vimdir = ${top}/vim
+	set vimdir = ${top}/util/vim
 else
 	# In git repository
 	cd $top
-	set vimdir = ${top}/vim
+	set vimdir = ${top}/util/vim
 endif
 
 
