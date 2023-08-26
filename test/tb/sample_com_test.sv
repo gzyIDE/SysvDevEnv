@@ -15,6 +15,8 @@
 `endif
 
 module sample_com_test;
+  import "DPI-C" function void hello_dpi (input byte ind, input byte outd);
+
 	parameter STEP = 10;
 	parameter IN = 4;
 	parameter OUT = 1 << IN;
@@ -39,6 +41,8 @@ module sample_com_test;
 	//***** Simulation Body
 	int i;
 	initial begin
+    hello_dpi(0, 0);
+
 		in = 0;
 		#(STEP);
 		for ( i = 0; i < 1 << IN; i = i + 1 ) begin
